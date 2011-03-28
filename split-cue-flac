@@ -9,7 +9,7 @@ do
     c)
         ICONV_CUE_F=$OPTARG
         ;;
-    h) 
+    h)
         printf "Usage: %s: [-c cue_encoding]\n" $(basename $0) >&2
         exit 2
         ;;
@@ -18,9 +18,10 @@ done
 
 SAVEIFS=$IFS
 IFS='\n'
+WORKDIR=.tmp-split-cue-flac
 
 find ./ -name '*.flac' -size +100M |  while read image
-do  
+do
     echo "$image"
     DIR=`dirname "$image"`
     BASE=`basename "$image"`
@@ -30,7 +31,6 @@ do
 
     cd "$DIR"
         echo "Splitting with shnsplit"
-        WORKDIR=.tmp-split-cue-flac
         rm -rf $WORKDIR
         mkdir $WORKDIR
 
@@ -51,7 +51,10 @@ do
 
         mv $WORKDIR/*.flac ./ && \
         rm -r $WORKDIR
-    cd ../
+
+    if [ "x$DIR" != "x." ]; then
+        cd $DIR/../
+    fi
 done
 IFS=$SAVEIFS
 
