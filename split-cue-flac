@@ -68,7 +68,7 @@ do
             mkdir $DSK
         fi && \
 
-        mv "$WORKDIR/*.flac" "./$DSK" && \
+        mv $WORKDIR/*.flac ./$DSK && \
 
         rm -r $WORKDIR
 
