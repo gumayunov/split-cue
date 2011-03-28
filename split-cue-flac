@@ -73,7 +73,7 @@ do
         rm -r $WORKDIR
 
     if [ "x$DIR" != "x." ]; then
-        cd $DIR/../
+        cd ../
     fi
 done
 IFS=$SAVEIFS
