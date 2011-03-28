@@ -16,6 +16,15 @@ do
     esac
 done
 
+DISKNUM=
+test_disk_image() {
+    DISKNUM=`echo "$1" | perl -pe 's/.*(?:cd|disk)\s*(\d+).*/$1/i'`
+    if [ "x$DISKNUM" = "x$1" ]; then
+        DISKNUM=""
+    fi
+}
+
+
 SAVEIFS=$IFS
 IFS='\n'
 WORKDIR=.tmp-split-cue-flac
@@ -39,7 +48,7 @@ do
            iconv -f $ICONV_CUE_F -t $ICONV_CUE_T "$CUE" -o "$WORKDIR/$CUE"
         else
            cp "$CUE" "$WORKDIR/$CUE"
-        fi
+        fi && \
 
         shnsplit -d $WORKDIR -o flac -f "$WORKDIR/$CUE" -t "%n – %t" "$IMAGE" && \
 
@@ -49,7 +58,18 @@ do
         echo "Fixing tags with cuetag" && \
         cuetag "$WORKDIR/$CUE" ./$WORKDIR/*.flac && \
 
-        mv $WORKDIR/*.flac ./ && \
+        test_disk_image "$IMAGE" && \
+
+        DSK= && \
+        if [ "x$DISKNUM" != "x" ]; then
+            DSK="CD$DISKNUM"
+            echo "Creating $DSK dir"
+            rm -rf $DSK
+            mkdir $DSK
+        fi && \
+
+        mv "$WORKDIR/*.flac" "./$DSK" && \
+
         rm -r $WORKDIR
 
     if [ "x$DIR" != "x." ]; then
