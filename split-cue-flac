@@ -1,0 +1,57 @@
+#!/bin/sh
+
+ICONV_CUE_F=
+ICONV_CUE_T=UTF8
+
+while getopts 'hc:' OPTION
+do
+    case $OPTION in
+    c)
+        ICONV_CUE_F=$OPTARG
+        ;;
+    h) 
+        printf "Usage: %s: [-c cue_encoding]\n" $(basename $0) >&2
+        exit 2
+        ;;
+    esac
+done
+
+SAVEIFS=$IFS
+IFS='\n'
+
+find ./ -name '*.flac' -size +100M |  while read image
+do  
+    echo "$image"
+    DIR=`dirname "$image"`
+    BASE=`basename "$image"`
+    BASE=`echo "$BASE" | sed -e 's/.flac//'`
+    CUE=$BASE.cue
+    IMAGE=$BASE.flac
+
+    cd "$DIR"
+        echo "Splitting with shnsplit"
+        WORKDIR=.tmp-split-cue-flac
+        rm -rf $WORKDIR
+        mkdir $WORKDIR
+
+        if [ "x$ICONV_CUE_F" != "x" ]; then
+           echo "Converting cue $CUE"
+           iconv -f $ICONV_CUE_F -t $ICONV_CUE_T "$CUE" -o "$WORKDIR/$CUE"
+        else
+           cp "$CUE" "$WORKDIR/$CUE"
+        fi
+
+        shnsplit -d $WORKDIR -o flac -f "$WORKDIR/$CUE" -t "%n – %t" "$IMAGE" && \
+
+        echo "Moving $IMAGE -> ${IMAGE}.image" && \
+        mv "$IMAGE" "${IMAGE}.image" && \
+
+        echo "Fixing tags with cuetag" && \
+        cuetag "$WORKDIR/$CUE" ./$WORKDIR/*.flac && \
+
+        mv $WORKDIR/*.flac ./ && \
+        rm -r $WORKDIR
+    cd ../
+done
+IFS=$SAVEIFS
+
