@@ -25,6 +25,7 @@ test_disk_image() {
 }
 
 
+BASEDIR=${PWD}
 SAVEIFS=$IFS
 IFS='\n'
 WORKDIR=.tmp-split-cue-flac
@@ -73,7 +74,7 @@ do
         rm -r $WORKDIR
 
     if [ "x$DIR" != "x." ]; then
-        cd ../
+        cd "$BASEDIR"
     fi
 done
 IFS=$SAVEIFS
