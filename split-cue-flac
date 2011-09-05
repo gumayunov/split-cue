@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/zsh
+
+CUETAG_CMD=`dirname $0`/cuetag
 
 ICONV_CUE_F=
 ICONV_CUE_T=UTF8
@@ -29,7 +31,7 @@ SAVEIFS=$IFS
 IFS='\n'
 WORKDIR=.tmp-split-cue-flac
 
-find ./ -name '*.flac' -size +100M |  while read image
+find ./ -name '*.flac' -size +80M |  while read image
 do
     echo "$image"
     DIR=`dirname "$image"`
@@ -56,7 +58,7 @@ do
         mv "$IMAGE" "${IMAGE}.image" && \
 
         echo "Fixing tags with cuetag" && \
-        cuetag "$WORKDIR/$CUE" ./$WORKDIR/*.flac && \
+        $CUETAG_CMD "$WORKDIR/$CUE" ./$WORKDIR/*.flac && \
 
         test_disk_image "$IMAGE" && \
 
